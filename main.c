@@ -6,7 +6,7 @@
 /*   By: stopp <stopp@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/11 16:08:33 by stopp             #+#    #+#             */
-/*   Updated: 2024/06/12 18:29:52 by stopp            ###   ########.fr       */
+/*   Updated: 2024/06/14 14:35:24 by stopp            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,18 @@ int	error_msg(char *str)
 	printf("%serror: %s%s\n", RED, str, RESET);
 	return (0);
 }
+
+// t_philo	*save_input(char **argv)
+// {
+// 	int		i;
+// 	t_philo	*philo;
+
+// 	i = 0;
+// 	(void)argv
+// 	philo = malloc(sizeof(t_philo));
+// 	if (!philo)
+// 		return (NULL);
+// }
 
 int	chk_input(int argc, char **argv)
 {
@@ -37,18 +49,41 @@ int	chk_input(int argc, char **argv)
 		}
 		i++;
 	}
+	// save_input(argv);
 	return (1);
+}
+
+uint64_t	get_time(void)
+{
+	struct timeval	time;
+
+	if (gettimeofday(&time, NULL))
+		return (0);
+	return ((time.tv_sec * (uint64_t)1000) + (time.tv_usec / 1000));
+}
+
+void	ft_usleep(uint64_t ms)
+{
+	uint64_t	start;
+	uint64_t	dif;
+
+	dif = 0;
+	start = get_time();
+	while (dif < ms)
+		dif = get_time() - start;
 }
 
 int	main(int argc, char *argv[])
 {
-	struct timeval	end;
-	struct timeval	start;
+	// t_philo			data;
+	uint64_t	start;
+	uint64_t	end;
 
-	gettimeofday(&start, NULL);
+	start = get_time();
 	if (chk_input(argc, argv) == 0)
 		return (1);
 	printf("%sinput is fine%s\n", GREEN, RESET);
-	gettimeofday(&end, NULL);
-	printf("time passed since starting the project: %dms", (end.tv_usec - start.tv_usec) );
+	ft_usleep(10000);
+	end = get_time();
+	printf("time passed since starting the project: %llums", end - start);
 }
