@@ -6,7 +6,7 @@
 /*   By: stopp <stopp@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/11 16:08:38 by stopp             #+#    #+#             */
-/*   Updated: 2024/06/14 17:12:12 by stopp            ###   ########.fr       */
+/*   Updated: 2024/06/18 16:44:16 by stopp            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,14 +35,14 @@ typedef struct s_philo
 {
 	pthread_t		thread;
 	int				id;
-	int				philo_num;
 	int				times_eaten;
-	int				times_to_eat;
-	size_t			last_eaten;
-	size_t			death_time;
-	size_t			eat_time;
-	size_t			sleep_time;
-	size_t			start_time;
+	uint64_t		last_eaten;
+	uint64_t		start_time;
+	int				*times_to_eat;
+	int				*philo_amount;
+	uint64_t		*death_time;
+	uint64_t		*eat_time;
+	uint64_t		*sleep_time;
 	pthread_mutex_t	*r_fork;
 	pthread_mutex_t	*l_fork;
 	pthread_mutex_t	*writelock;
@@ -51,16 +51,35 @@ typedef struct s_philo
 
 }	t_philo;
 
-typedef struct s_flags
+typedef struct s_data
 {
+	int				times_to_eat;
+	int				philo_amount;
+	uint64_t		death_time;
+	uint64_t		eat_time;
+	uint64_t		sleep_time;
 	pthread_mutex_t	deadlock;
 	pthread_mutex_t	meallock;
 	pthread_mutex_t	writelock;
+	pthread_mutex_t	*forks;
 	int				dead_flag;
 	t_philo			*philos;
-}	t_flags;
+	pthread_t		*phil_thrds;
+}	t_data;
 
 /* ------------------------------- FUNCTIONS -------------------------------- */
+
+//	time_utils.c
+uint64_t	curr_time(void);
+void		ft_usleep(uint64_t ms);
+
+//	utils.c
+int			error_msg(char *str);
+int			ft_atoi(const char *str);
+
+//input_handling.c
+int			chk_input(int argc, char **argv);
+t_philo		*save_input(char **argv);
 
 // ---------------------------------- main -------------------------------------
 
