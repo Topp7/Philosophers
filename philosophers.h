@@ -6,7 +6,7 @@
 /*   By: stopp <stopp@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/11 16:08:38 by stopp             #+#    #+#             */
-/*   Updated: 2024/06/18 16:44:16 by stopp            ###   ########.fr       */
+/*   Updated: 2024/06/21 17:29:02 by stopp            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,41 +31,32 @@
 
 /* -------------------------------- STRUCTS --------------------------------- */
 
+typedef struct s_mutex
+{
+	pthread_mutex_t	l_fork;
+	pthread_mutex_t	r_fork;
+	pthread_mutex_t	last_meal;
+	pthread_mutex_t	dead;
+	pthread_mutex_t	meal_count;
+	pthread_mutex_t	print_mutex;
+}					t_mutex;
+
 typedef struct s_philo
 {
-	pthread_t		thread;
 	int				id;
-	int				times_eaten;
-	uint64_t		last_eaten;
-	uint64_t		start_time;
-	int				*times_to_eat;
-	int				*philo_amount;
-	uint64_t		*death_time;
-	uint64_t		*eat_time;
-	uint64_t		*sleep_time;
-	pthread_mutex_t	*r_fork;
-	pthread_mutex_t	*l_fork;
-	pthread_mutex_t	*writelock;
-	pthread_mutex_t	*deadlock;
-	pthread_mutex_t	*meallock;
-
-}	t_philo;
-
-typedef struct s_data
-{
-	int				times_to_eat;
-	int				philo_amount;
-	uint64_t		death_time;
-	uint64_t		eat_time;
-	uint64_t		sleep_time;
-	pthread_mutex_t	deadlock;
-	pthread_mutex_t	meallock;
-	pthread_mutex_t	writelock;
-	pthread_mutex_t	*forks;
-	int				dead_flag;
-	t_philo			*philos;
-	pthread_t		*phil_thrds;
-}	t_data;
+	int				phil_amount;
+	int				sleep_time;
+	int				eat_time;
+	int				death_time;
+	int				meal_count;
+	int				last_meal;
+	int				fork;
+	int				dead;
+	int				full;
+	t_mutex			*mutex;
+	struct s_args	*next;
+	int				start_time;
+}					t_philo;
 
 /* ------------------------------- FUNCTIONS -------------------------------- */
 
@@ -79,7 +70,7 @@ int			ft_atoi(const char *str);
 
 //input_handling.c
 int			chk_input(int argc, char **argv);
-t_philo		*save_input(char **argv);
+t_data		*save_input(char **argv);
 
 // ---------------------------------- main -------------------------------------
 

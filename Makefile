@@ -6,7 +6,7 @@
 #    By: stopp <stopp@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/11 16:08:36 by stopp             #+#    #+#              #
-#    Updated: 2024/06/11 17:11:42 by stopp            ###   ########.fr        #
+#    Updated: 2024/06/21 15:16:38 by stopp            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,7 +16,7 @@ NAME := philosophers
 # Define ANSI color codes
 GREEN := \033[0;32m
 RED := \033[0;31m
-Blue := \033[0;34m
+BLUE := \033[0;34m
 NC := \033[0m
 
 # Flags
@@ -26,7 +26,7 @@ CFLAGS  := -Wall -Werror -Wextra -I.
 SRC_DIR := src
 OBJ_DIR := obj
 # Source files
-SRCS    := main.c \
+SRCS    := main.c src/input_handling.c src/time_utils.c src/utils.c \
 # Object files
 OBJS    := $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 
