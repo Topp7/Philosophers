@@ -6,7 +6,7 @@
 /*   By: stopp <stopp@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/15 13:51:05 by stopp             #+#    #+#             */
-/*   Updated: 2024/06/21 17:19:30 by stopp            ###   ########.fr       */
+/*   Updated: 2024/06/24 16:13:20 by stopp            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,11 +28,9 @@ t_philo	*save_input(char **argv)
 	philo->death_time = (u_int64_t)ft_atoi(argv[2]);
 	philo->eat_time = (u_int64_t)ft_atoi(argv[3]);
 	philo->sleep_time = (u_int64_t)ft_atoi(argv[4]);
-	philo->meal_count = -1;
+	philo->meal_amount = -1;
 	if (argv[5])
-		philo->meal_count = ft_atoi(argv[5]);
-	if (malloc_data(philo) == 1)
-		return (NULL);
+		philo->meal_amount = ft_atoi(argv[5]);
 	philo->dead = 0;
 	return (philo);
 }

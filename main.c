@@ -6,7 +6,7 @@
 /*   By: stopp <stopp@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/11 16:08:33 by stopp             #+#    #+#             */
-/*   Updated: 2024/06/21 17:28:49 by stopp            ###   ########.fr       */
+/*   Updated: 2024/06/24 17:04:09 by stopp            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,16 +33,94 @@ void	init_forks(t_data *data)
 	}
 }
 
+void	init_values(t_philo *philo, t_philo *new)
+{
+	philo->phil_amount = new->phil_amount;
+	philo->sleep_time = new->sleep_time;
+	philo->eat_time = new->sleep_time;
+	philo->death_time = new->death_time;
+	philo->meal_amount = new->meal_amount;
+	philo->meal_count = new->meal_count;
+	philo->last_meal = new->last_meal;
+	philo->fork = new->last_meal;
+	philo->dead = new->dead;
+	philo->full = new->full;
+	philo->next = new;
+}
+
+t_mutex	*mutex_malloc(void)
+{
+	t_mutex	*mutex;
+
+	mutex = malloc(sizeof(t_mutex));
+	if (!mutex)
+		return (NULL);
+	mutex->l_fork = malloc(sizeof(pthread_mutex_t));
+	if (!mutex->l_fork)
+		return (free(mutex), NULL);
+	mutex->r_fork = malloc(sizeof(pthread_mutex_t));
+	if (!mutex->l_fork)
+		return (free(mutex->l_fork), free(mutex), NULL);
+	return (mutex);
+}
+
+int	init_philmutex(t_philo *philo)
+{
+	t_philo	*tmp;
+	int		i;
+
+	tmp = philo;
+	i = 1;
+	while (i <= philo->phil_amount)
+	{
+		tmp->mutex = malloc_mutex();
+		if (!tmp->mutex)
+			return (0);
+		pthread_mutex_init(tmp->mutex->l_fork, NULL);
+		pthread_mutex_init(tmp->mutex->r_fork, NULL);
+		pthread_mutex_init(&(tmp->mutex->dead), NULL);
+		pthread_mutex_init(&(tmp->mutex->print_mutex), NULL);
+		tmp = tmp->next;
+		i++;
+	}
+}
+
+int	add_philos(t_philo *philo)
+{
+	int		i;
+	t_philo	*new;
+	t_philo	*tmp;
+
+	i = 1;
+	tmp = philo;
+	while (i < philo->meal_amount)
+	{
+		new = malloc(sizeof(t_philo));
+		if (!new)
+			return (0);
+		new->id = i + 1;
+		init_values(tmp, new);
+		tmp = tmp->next;
+	}
+	tmp->next = philo;
+	if (init_philmutex(philo) == 0)
+		return (0);
+	return (1);
+}
+
 void	init_philos(t_philo *philo)
 {
 	int	i;
 
 	i = 0;
+	philo->id = 1;
+	philo->meal_count = 0;
 	philo->last_meal = 0;
 	philo->fork = 0;
 	philo->dead = 0;
 	philo->full = 0;
-	philo->mutex = 
+	philo->curr_time = 0;
+	if add_philos(philo);
 	init_forks(data);
 }
 

@@ -6,7 +6,7 @@
 /*   By: stopp <stopp@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/11 16:08:38 by stopp             #+#    #+#             */
-/*   Updated: 2024/06/21 17:29:02 by stopp            ###   ########.fr       */
+/*   Updated: 2024/06/24 17:03:33 by stopp            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,11 +33,9 @@
 
 typedef struct s_mutex
 {
-	pthread_mutex_t	l_fork;
-	pthread_mutex_t	r_fork;
-	pthread_mutex_t	last_meal;
+	pthread_mutex_t	*l_fork;
+	pthread_mutex_t	*r_fork;
 	pthread_mutex_t	dead;
-	pthread_mutex_t	meal_count;
 	pthread_mutex_t	print_mutex;
 }					t_mutex;
 
@@ -48,6 +46,7 @@ typedef struct s_philo
 	int				sleep_time;
 	int				eat_time;
 	int				death_time;
+	int				meal_amount;
 	int				meal_count;
 	int				last_meal;
 	int				fork;
@@ -55,6 +54,7 @@ typedef struct s_philo
 	int				full;
 	t_mutex			*mutex;
 	struct s_args	*next;
+	uint64_t		curr_time;
 	int				start_time;
 }					t_philo;
 
