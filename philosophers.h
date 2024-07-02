@@ -6,7 +6,7 @@
 /*   By: stopp <stopp@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/11 16:08:38 by stopp             #+#    #+#             */
-/*   Updated: 2024/06/24 17:03:33 by stopp            ###   ########.fr       */
+/*   Updated: 2024/07/02 17:38:05 by stopp            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,8 @@ typedef struct s_mutex
 	pthread_mutex_t	*l_fork;
 	pthread_mutex_t	*r_fork;
 	pthread_mutex_t	dead;
-	pthread_mutex_t	print_mutex;
+	pthread_mutex_t	print;
+	pthread_mutex_t	meals;
 }					t_mutex;
 
 typedef struct s_philo
@@ -48,14 +49,14 @@ typedef struct s_philo
 	int				death_time;
 	int				meal_amount;
 	int				meal_count;
-	int				last_meal;
+	uint64_t		last_meal;
 	int				fork;
 	int				dead;
 	int				full;
 	t_mutex			*mutex;
-	struct s_args	*next;
-	uint64_t		curr_time;
-	int				start_time;
+	struct s_philo	*next;
+	uint64_t		start_time;
+	int				curr_time;
 }					t_philo;
 
 /* ------------------------------- FUNCTIONS -------------------------------- */
@@ -70,7 +71,7 @@ int			ft_atoi(const char *str);
 
 //input_handling.c
 int			chk_input(int argc, char **argv);
-t_data		*save_input(char **argv);
+t_philo		*save_input(char **argv);
 
 // ---------------------------------- main -------------------------------------
 
