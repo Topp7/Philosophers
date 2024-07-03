@@ -6,7 +6,7 @@
 /*   By: stopp <stopp@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/11 16:08:33 by stopp             #+#    #+#             */
-/*   Updated: 2024/07/02 18:37:08 by stopp            ###   ########.fr       */
+/*   Updated: 2024/07/03 18:01:52 by stopp            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,18 +103,31 @@ int	init_philos(t_philo *philo)
 	return (1);
 }
 
+void	print_status(t_philo *philo, char c)
+{
+	pthread_mutex_lock(&(philo->mutex->print));
+	philo->curr_time = (curr_time() - philo->start_time);
+	if (philo->curr_time % 2 != 0)
+		philo->curr_time += 1;
+	if (c == 't')
+		printf("%llu :%i  is thinking\n", philo->curr_time, philo->id);
+	else if (c == 'e')
+		printf("%llu :%i  is eating\n", philo->curr_time, philo->id);
+	else if (c == 's')
+		printf("%llu :%i  is sleeping\n", philo->curr_time, philo->id);
+	else if (c == 'f')
+		printf("%llu :%i  has taken a fork\n", philo->curr_time, philo->id);
+	else if (c == 'd')
+		printf("%llu :%i  has died\n", philo->curr_time, philo->id);
+	pthread_mutex_unlock(&(philo->mutex->print));
+}
+
 int	dead_chk(t_philo *philo)
 {
-	if ((curr_time() - philo->last_meal) > (uint64_t)philo->death_time)
-	{
-		pthread_mutex_lock(&(philo->mutex->dead));
-		philo->dead = 1;
-		pthread_mutex_unlock(&(philo->mutex->dead));
-		pthread_mutex_lock(&(philo->mutex->print));
-		printf("%i %i has died\n", philo->curr_time, philo->id);
-		pthread_mutex_lock(&(philo->mutex->print));
+	pthread_mutex_lock(&(philo->mutex->dead));
+	if (philo->dead == 1)
 		return (1);
-	}
+	pthread_mutex_unlock(&(philo->mutex->dead));
 	return (0);
 }
 
@@ -123,41 +136,38 @@ int	philo_sleep(t_philo *philo)
 	philo->curr_time = curr_time() - philo->start_time;
 	if (dead_chk(philo) == 1 || philo->full == 1)
 		return (1);
-	pthread_mutex_lock(&(philo->mutex->print));
-	printf("%i %i is sleeping\n", philo->curr_time, philo->id);
-	pthread_mutex_unlock(&(philo->mutex->print));
+	print_status(philo, 's');
 	ft_usleep((uint64_t)(philo->sleep_time));
 	return (0);
 }
 
 int	philo_eat(t_philo *philo)
 {
-	philo->curr_time = curr_time() - philo->start_time;
 	if (dead_chk(philo) == 1 || philo->full == 1)
 		return (1);
-	philo->last_meal = curr_time();
-	pthread_mutex_lock(&(philo->mutex->print));
 	pthread_mutex_lock(philo->mutex->l_fork);
-	printf("%i %i has taken a fork\n", philo->curr_time, philo->id);
+	print_status(philo, 'f');
 	pthread_mutex_lock(philo->mutex->r_fork);
-	printf("%i %i has taken a fork\n", philo->curr_time, philo->id);
-	printf("%i %i is eating\n", philo->curr_time, philo->id);
-	pthread_mutex_unlock(&(philo->mutex->print));
+	print_status(philo, 'f');
+	philo->last_meal = curr_time();
+	print_status(philo, 'e');
 	ft_usleep((uint64_t)(philo->eat_time));
+	pthread_mutex_unlock(philo->mutex->r_fork);
+	pthread_mutex_unlock(philo->mutex->l_fork);
 	philo->meal_count++;
 	if (philo->meal_count == philo->meal_amount)
+	{
 		philo->full = 1;
+		return (1);
+	}
 	return (0);
 }
 
 int	philos_think(t_philo *philo)
 {
-	philo->curr_time = curr_time() - philo->start_time;
 	if (dead_chk(philo) == 1 || philo->full == 1)
 		return (1);
-	pthread_mutex_lock(&(philo->mutex->print));
-	printf("%i %i is thinking\n", philo->curr_time, philo->id);
-	pthread_mutex_unlock(&(philo->mutex->print));
+	print_status(philo, 't');
 	return (0);
 }
 
@@ -167,7 +177,7 @@ void	*phil_routine(void *arg)
 
 	philo = (t_philo *)arg;
 	if (philo->id % 2 == 0)
-		ft_usleep((uint64_t)(philo->eat_time / 2));
+		ft_usleep((uint64_t)(1));
 	philo->start_time = curr_time();
 	while (1)
 	{
@@ -181,42 +191,25 @@ void	*phil_routine(void *arg)
 	return (NULL);
 }
 
-// void	print_status(t_philo *philo, char c)
-// {
-// 	philo->curr_time = curr_time - philo->start_time;
-// 	pthread_mutex_lock(&(philo->mutex->print));
-// 	if (c == 't')
-// 		printf("%i :%i  is thinking\n", philo->curr_time, philo->id);
-// 	else if (c == 'e')
-// 		printf("%i :%i  is thinking\n", philo->curr_time, philo->id);
-// 	else if (c == 's')
-// 		printf("%i :%i  is thinking\n", philo->curr_time, philo->id);
-// 	else if (c == 'f')
-// 		printf("%i :%i  is thinking\n", philo->curr_time, philo->id);
-// 	else if (c == 'd')
-// 		printf("%i :%i  is thinking\n", philo->curr_time, philo->id);
-// 	pthread_mutex_unlock(&(philo->mutex->print));
-// }
-
-int	observer(t_philo *philos)
+int	observer(t_philo *philo)
 {
-	int	i;
-
-	i = 0;
-	pthread_mutex_lock(&(philos->mutex->dead));
-	while (philos->dead == 1 && i < philos->phil_amount)
+	pthread_mutex_lock(&(philo->mutex->meals));
+	if ((curr_time() - philo->last_meal) > (uint64_t)philo->death_time
+		&& philo->full != 1)
 	{
-		pthread_mutex_unlock(&(philos->mutex->dead));
-		philos = philos->next;
-		pthread_mutex_lock(&(philos->mutex->dead));
-		philos->dead = 1;
-		i++;
-	}
-	pthread_mutex_unlock(&(philos->mutex->dead));
-	if (i > 0)
+		pthread_mutex_unlock(&(philo->mutex->meals));
+		pthread_mutex_lock(&(philo->mutex->dead));
+		while (philo->dead == 0)
+		{
+			philo->dead = 1;
+			pthread_mutex_unlock(&(philo->mutex->dead));
+			philo = philo->next;
+			pthread_mutex_lock(&(philo->mutex->dead));
+		}
+		pthread_mutex_unlock(&(philo->mutex->dead));
 		return (1);
-	else
-		return (0);
+	}
+	return (0);
 }
 
 void	*observe_philos(void *tmp)
@@ -227,7 +220,7 @@ void	*observe_philos(void *tmp)
 	while (1)
 	{
 		if (observer(philos) == 1)
-			break;
+			break ;
 		philos = philos->next;
 	}
 	return (NULL);
