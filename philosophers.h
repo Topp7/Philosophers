@@ -6,7 +6,7 @@
 /*   By: stopp <stopp@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/11 16:08:38 by stopp             #+#    #+#             */
-/*   Updated: 2024/07/03 15:02:41 by stopp            ###   ########.fr       */
+/*   Updated: 2024/07/06 18:34:06 by stopp            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ typedef struct s_philo
 	int				fork;
 	int				dead;
 	int				full;
-	t_mutex			*mutex;
+	t_mutex			mutex;
 	struct s_philo	*next;
 	uint64_t		start_time;
 	uint64_t		curr_time;

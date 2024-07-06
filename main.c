@@ -6,7 +6,7 @@
 /*   By: stopp <stopp@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/11 16:08:33 by stopp             #+#    #+#             */
-/*   Updated: 2024/07/03 18:01:52 by stopp            ###   ########.fr       */
+/*   Updated: 2024/07/06 18:39:10 by stopp            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,8 @@ int	init_forks(t_philo *philo)
 	while (i <= philo->phil_amount)
 	{
 		pthread_mutex_init(&forks[i], NULL);
-		tmp->mutex->r_fork = &forks[i];
-		tmp->next->mutex->l_fork = &forks[i];
+		tmp->mutex.r_fork = &forks[i];
+		tmp->next->mutex.l_fork = &forks[i];
 		tmp = tmp->next;
 		i++;
 	}
@@ -41,9 +41,9 @@ int	init_new(t_philo *philo, int i, pthread_mutex_t print_mutex)
 	new = malloc(sizeof(t_philo));
 	if (!new)
 		return (0);
-	new->mutex = malloc(sizeof(t_mutex));
-	if (!(new->mutex))
-		return (0);
+	// new->mutex = malloc(sizeof(t_mutex));
+	// if (!(new->mutex))
+	// 	return (0);
 	new->id = i + 1;
 	new->phil_amount = philo->phil_amount;
 	new->sleep_time = philo->sleep_time;
@@ -56,9 +56,9 @@ int	init_new(t_philo *philo, int i, pthread_mutex_t print_mutex)
 	new->dead = philo->dead;
 	new->full = philo->full;
 	philo->next = new;
-	pthread_mutex_init(&(new->mutex->dead), NULL);
-	pthread_mutex_init(&(new->mutex->meals), NULL);
-	new->mutex->print = print_mutex;
+	pthread_mutex_init(&(new->mutex.dead), NULL);
+	pthread_mutex_init(&(new->mutex.meals), NULL);
+	new->mutex.print = print_mutex;
 	return (1);
 }
 
@@ -71,7 +71,7 @@ int	add_philos(t_philo *philo)
 	i = 1;
 	tmp = philo;
 	pthread_mutex_init(&print_mutex, NULL);
-	philo->mutex->print = print_mutex;
+	philo->mutex.print = print_mutex;
 	while (i < philo->phil_amount)
 	{
 		if (init_new(tmp, i++, print_mutex) == 0)
@@ -84,11 +84,11 @@ int	add_philos(t_philo *philo)
 
 int	init_philos(t_philo *philo)
 {
-	philo->mutex = malloc(sizeof(t_mutex));
-	if (!(philo->mutex))
-		return (0);
-	pthread_mutex_init(&(philo->mutex->dead), NULL);
-	pthread_mutex_init(&(philo->mutex->meals), NULL);
+	// philo->mutex = malloc(sizeof(t_mutex));
+	// if (!(philo->mutex))
+	// 	return (0);
+	pthread_mutex_init(&philo->mutex.dead, NULL);
+	pthread_mutex_init(&philo->mutex.meals, NULL);
 	philo->id = 1;
 	philo->meal_count = 0;
 	philo->last_meal = curr_time();
@@ -105,7 +105,7 @@ int	init_philos(t_philo *philo)
 
 void	print_status(t_philo *philo, char c)
 {
-	pthread_mutex_lock(&(philo->mutex->print));
+	pthread_mutex_lock(&(philo->mutex.print));
 	philo->curr_time = (curr_time() - philo->start_time);
 	if (philo->curr_time % 2 != 0)
 		philo->curr_time += 1;
@@ -119,15 +119,15 @@ void	print_status(t_philo *philo, char c)
 		printf("%llu :%i  has taken a fork\n", philo->curr_time, philo->id);
 	else if (c == 'd')
 		printf("%llu :%i  has died\n", philo->curr_time, philo->id);
-	pthread_mutex_unlock(&(philo->mutex->print));
+	pthread_mutex_unlock(&(philo->mutex.print));
 }
 
 int	dead_chk(t_philo *philo)
 {
-	pthread_mutex_lock(&(philo->mutex->dead));
+	pthread_mutex_lock(&(philo->mutex.dead));
 	if (philo->dead == 1)
 		return (1);
-	pthread_mutex_unlock(&(philo->mutex->dead));
+	pthread_mutex_unlock(&(philo->mutex.dead));
 	return (0);
 }
 
@@ -145,15 +145,15 @@ int	philo_eat(t_philo *philo)
 {
 	if (dead_chk(philo) == 1 || philo->full == 1)
 		return (1);
-	pthread_mutex_lock(philo->mutex->l_fork);
+	pthread_mutex_lock(philo->mutex.l_fork);
 	print_status(philo, 'f');
-	pthread_mutex_lock(philo->mutex->r_fork);
+	pthread_mutex_lock(philo->mutex.r_fork);
 	print_status(philo, 'f');
 	philo->last_meal = curr_time();
 	print_status(philo, 'e');
 	ft_usleep((uint64_t)(philo->eat_time));
-	pthread_mutex_unlock(philo->mutex->r_fork);
-	pthread_mutex_unlock(philo->mutex->l_fork);
+	pthread_mutex_unlock(philo->mutex.r_fork);
+	pthread_mutex_unlock(philo->mutex.l_fork);
 	philo->meal_count++;
 	if (philo->meal_count == philo->meal_amount)
 	{
@@ -193,22 +193,25 @@ void	*phil_routine(void *arg)
 
 int	observer(t_philo *philo)
 {
-	pthread_mutex_lock(&(philo->mutex->meals));
+	pthread_mutex_lock(&(philo->mutex.meals));
 	if ((curr_time() - philo->last_meal) > (uint64_t)philo->death_time
 		&& philo->full != 1)
 	{
-		pthread_mutex_unlock(&(philo->mutex->meals));
-		pthread_mutex_lock(&(philo->mutex->dead));
+		pthread_mutex_unlock(&(philo->mutex.meals));
+		print_status(philo, 'd');
+		pthread_mutex_lock(&(philo->mutex.dead));
 		while (philo->dead == 0)
 		{
 			philo->dead = 1;
-			pthread_mutex_unlock(&(philo->mutex->dead));
+			pthread_mutex_unlock(&(philo->mutex.dead));
 			philo = philo->next;
-			pthread_mutex_lock(&(philo->mutex->dead));
+			pthread_mutex_lock(&(philo->mutex.dead));
 		}
-		pthread_mutex_unlock(&(philo->mutex->dead));
+		pthread_mutex_unlock(&(philo->mutex.dead));
 		return (1);
 	}
+	else
+		pthread_mutex_unlock(&(philo->mutex.meals));
 	return (0);
 }
 
@@ -249,14 +252,37 @@ int	routine_setup(t_philo *philo)
 		return (0);
 	while (i < philo->phil_amount)
 	{
-		if (pthread_create(&t_id[i++], NULL, phil_routine, tmp) != 0)
+		if (pthread_create(&t_id[i], NULL, phil_routine, tmp) != 0)
 			return (join_thrds(t_id, i), 0);
 		tmp = tmp->next;
+		i++;
 	}
 	if (pthread_create(&t_id[i], NULL, observe_philos, philo) != 0)
 		return (join_thrds(t_id, i), 0);
-	join_thrds(t_id, i);
+	if (join_thrds(t_id, i) == 0)
+		return (0);
 	return (1);
+}
+
+void	free_all(t_philo *philo)
+{
+	int		i;
+	t_philo	*tmp;
+
+	i = 1;
+	pthread_mutex_destroy(&(philo->mutex.print));
+	while (i <= philo->phil_amount)
+	{
+		tmp = philo;
+		pthread_mutex_destroy(&(philo->mutex.dead));
+		pthread_mutex_destroy(&(philo->mutex.meals));
+		printf("%i\n", i);
+		pthread_mutex_destroy(philo->mutex.r_fork);
+		if (i <= philo->phil_amount)
+			philo = philo->next;
+		free(tmp);
+		i++;
+	}
 }
 
 int	main(int argc, char *argv[])
@@ -272,5 +298,6 @@ int	main(int argc, char *argv[])
 		return (1);
 	if (routine_setup(philo) == 0)
 		return (1);
+	free_all(philo);
 	return (0);
 }

@@ -6,7 +6,7 @@
 #    By: stopp <stopp@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/11 16:08:36 by stopp             #+#    #+#              #
-#    Updated: 2024/06/21 15:16:38 by stopp            ###   ########.fr        #
+#    Updated: 2024/07/06 18:20:36 by stopp            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,7 @@ BLUE := \033[0;34m
 NC := \033[0m
 
 # Flags
-CFLAGS  := -Wall -Werror -Wextra -I.
+CFLAGS  := -Wall -Werror -Wextra -g -I.
 
 # Directories
 SRC_DIR := src
