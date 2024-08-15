@@ -6,7 +6,7 @@
 /*   By: stopp <stopp@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/15 13:51:05 by stopp             #+#    #+#             */
-/*   Updated: 2024/06/24 16:13:20 by stopp            ###   ########.fr       */
+/*   Updated: 2024/08/15 14:31:19 by stopp            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,9 @@ t_philo	*save_input(char **argv)
 	if (!philo)
 		return (NULL);
 	philo->phil_amount = ft_atoi(argv[1]);
-	if (philo->phil_amount > 200)
+	if (philo->phil_amount > 200 || philo->phil_amount < 2)
 	{
-		error_msg("Number of Philosophers exceeds 200");
+		error_msg("Invalid amount of philos\n");
 		return (NULL);
 	}
 	philo->death_time = (u_int64_t)ft_atoi(argv[2]);
@@ -54,6 +54,5 @@ int	chk_input(int argc, char **argv)
 		}
 		i++;
 	}
-	printf("%sinput is fine%s\n", GREEN, RESET);
 	return (1);
 }
