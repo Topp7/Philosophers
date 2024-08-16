@@ -6,11 +6,23 @@
 /*   By: stopp <stopp@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/15 13:44:19 by stopp             #+#    #+#             */
-/*   Updated: 2024/08/15 18:20:18 by stopp            ###   ########.fr       */
+/*   Updated: 2024/08/16 17:39:00 by stopp            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../philosophers.h"
+
+int	full_chk(t_philo *philo)
+{
+	int	status;
+
+	status = 0;
+	pthread_mutex_lock(philo->mutex->full_mtx);
+	if (*(philo->full) == philo->phil_amount)
+		status = 1;
+	pthread_mutex_unlock(philo->mutex->full_mtx);
+	return (status);
+}
 
 uint64_t	curr_time(void)
 {
@@ -43,7 +55,7 @@ void	ft_usleep(uint64_t ms, t_philo *philo)
 	start = curr_time();
 	while ((curr_time() - start) < ms)
 	{
-		if (dead_chk(philo) || philo->full == 1)
+		if (dead_chk(philo) || *(philo->full) == philo->phil_amount)
 			return ;
 		elapsed = curr_time() - start;
 		remain = (ms - elapsed);

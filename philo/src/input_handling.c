@@ -6,11 +6,30 @@
 /*   By: stopp <stopp@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/15 13:51:05 by stopp             #+#    #+#             */
-/*   Updated: 2024/08/15 14:31:19 by stopp            ###   ########.fr       */
+/*   Updated: 2024/08/16 16:53:15 by stopp            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../philosophers.h"
+
+int	chk_values(t_philo *philo)
+{
+	int	status;
+
+	status = 1;
+	if (philo->death_time < 10 || philo->eat_time < 10
+		|| philo->sleep_time < 10)
+	{
+		status = 0;
+		error_msg("time too small");
+	}
+	if (philo->meal_amount == 0)
+	{
+		status = 0;
+		error_msg("no meals to eat");
+	}
+	return (status);
+}
 
 t_philo	*save_input(char **argv)
 {
@@ -22,7 +41,7 @@ t_philo	*save_input(char **argv)
 	philo->phil_amount = ft_atoi(argv[1]);
 	if (philo->phil_amount > 200 || philo->phil_amount < 2)
 	{
-		error_msg("Invalid amount of philos\n");
+		error_msg("Invalid amount of philos");
 		return (NULL);
 	}
 	philo->death_time = (u_int64_t)ft_atoi(argv[2]);
@@ -32,6 +51,8 @@ t_philo	*save_input(char **argv)
 	if (argv[5])
 		philo->meal_amount = ft_atoi(argv[5]);
 	philo->dead = 0;
+	if (chk_values(philo) == 0)
+		return (NULL);
 	return (philo);
 }
 

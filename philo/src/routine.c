@@ -6,7 +6,7 @@
 /*   By: stopp <stopp@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 10:40:37 by soren             #+#    #+#             */
-/*   Updated: 2024/08/15 18:20:51 by stopp            ###   ########.fr       */
+/*   Updated: 2024/08/16 17:38:06 by stopp            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 int	philo_sleep(t_philo *philo)
 {
-	if (dead_chk(philo) == 1 || philo->full == 1)
+	if (dead_chk(philo) == 1 || full_chk(philo) == 1)
 		return (1);
 	print_status(philo, 's');
 	ft_usleep((uint64_t)(philo->sleep_time), philo);
@@ -23,7 +23,7 @@ int	philo_sleep(t_philo *philo)
 
 int	philo_eat(t_philo *philo)
 {
-	if (dead_chk(philo) == 1 || philo->full == 1)
+	if (dead_chk(philo) == 1 || full_chk(philo) == 1)
 		return (1);
 	pthread_mutex_lock(philo->mutex->r_fork);
 	print_status(philo, 'f');
@@ -37,20 +37,18 @@ int	philo_eat(t_philo *philo)
 	pthread_mutex_unlock(philo->mutex->r_fork);
 	pthread_mutex_unlock(philo->mutex->l_fork);
 	philo->meal_count++;
-	if (philo->meal_amount != -1)
+	if (philo->meal_count == philo->meal_amount)
 	{
-		if (philo->meal_count == philo->meal_amount)
-		{
-			philo->full = 1;
-			return (1);
-		}
+		pthread_mutex_lock(philo->mutex->full_mtx);
+		*(philo->full) += 1;
+		pthread_mutex_unlock(philo->mutex->full_mtx);
 	}
 	return (0);
 }
 
 int	philos_think(t_philo *philo)
 {
-	if (dead_chk(philo) == 1 || philo->full == 1)
+	if (dead_chk(philo) == 1 || full_chk(philo) == 1)
 		return (1);
 	print_status(philo, 't');
 	return (0);

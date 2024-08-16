@@ -6,7 +6,7 @@
 /*   By: stopp <stopp@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/11 16:08:38 by stopp             #+#    #+#             */
-/*   Updated: 2024/08/15 18:20:33 by stopp            ###   ########.fr       */
+/*   Updated: 2024/08/16 17:27:52 by stopp            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ typedef struct s_mutex
 	pthread_mutex_t	*r_fork;
 	pthread_mutex_t	dead;
 	pthread_mutex_t	*print;
+	pthread_mutex_t	*full_mtx;
 	pthread_mutex_t	meals;
 }					t_mutex;
 
@@ -53,7 +54,7 @@ typedef struct s_philo
 	uint64_t		last_meal;
 	int				fork;
 	int				dead;
-	int				full;
+	int				*full;
 	t_mutex			*mutex;
 	struct s_philo	*next;
 	uint64_t		start_time;
@@ -76,6 +77,7 @@ void		free_all(t_philo *philo);
 //	input_handling.c
 int			chk_input(int argc, char **argv);
 t_philo		*save_input(char **argv);
+int			full_chk(t_philo *philo);
 
 //	routine.c
 int			routine_setup(t_philo *philo);

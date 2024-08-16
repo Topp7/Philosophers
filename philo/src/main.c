@@ -6,7 +6,7 @@
 /*   By: stopp <stopp@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/11 16:08:33 by stopp             #+#    #+#             */
-/*   Updated: 2024/08/15 18:34:29 by stopp            ###   ########.fr       */
+/*   Updated: 2024/08/16 17:42:51 by stopp            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,20 +55,19 @@ int	observer(t_philo *philo)
 void	*observe_philos(void *tmp)
 {
 	t_philo	*philos;
-	int		i;
 
 	philos = (t_philo *)tmp;
-	i = 0;
 	while (1)
 	{
 		if (observer(philos) == 1)
 			break ;
-		else if (philos->full == 1)
-			i++;
-		else
-			i = 0;
-		if (i == philos->phil_amount)
+		pthread_mutex_lock(philos->mutex->full_mtx);
+		if (*(philos->full) == philos->phil_amount)
+		{
+			pthread_mutex_unlock(philos->mutex->full_mtx);
 			break ;
+		}
+		pthread_mutex_unlock(philos->mutex->full_mtx);
 		philos = philos->next;
 	}
 	return (NULL);

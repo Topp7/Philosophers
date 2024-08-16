@@ -6,7 +6,7 @@
 /*   By: stopp <stopp@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 10:46:13 by soren             #+#    #+#             */
-/*   Updated: 2024/08/15 16:22:15 by stopp            ###   ########.fr       */
+/*   Updated: 2024/08/16 17:19:39 by stopp            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,9 +54,12 @@ int	init_new(t_philo *philo, int i)
 	new->last_meal = philo->last_meal;
 	new->fork = philo->last_meal;
 	new->dead = philo->dead;
+	new->mutex->print = philo->mutex->print;
+	new->mutex->full_mtx = philo->mutex->full_mtx;
 	new->full = philo->full;
 	philo->next = new;
 	pthread_mutex_init(&(new->mutex->meals), NULL);
+	pthread_mutex_init(&(new->mutex->dead), NULL);
 	return (1);
 }
 
@@ -65,21 +68,25 @@ int	add_philos(t_philo *philo)
 	int				i;
 	t_philo			*tmp;
 	pthread_mutex_t	*print_mutex;
+	pthread_mutex_t	*full_mutex;
 
 	i = 1;
 	tmp = philo;
 	print_mutex = malloc(sizeof(pthread_mutex_t));
 	if (!print_mutex)
 		return (0);
+	full_mutex = malloc(sizeof(pthread_mutex_t));
+	if (!print_mutex)
+		return (0);
 	pthread_mutex_init(print_mutex, NULL);
+	pthread_mutex_init(full_mutex, NULL);
 	philo->mutex->print = print_mutex;
+	philo->mutex->full_mtx = full_mutex;
 	while (i < philo->phil_amount)
 	{
 		if (init_new(tmp, i++) == 0)
 			return (0);
 		tmp = tmp->next;
-		tmp->mutex->print = print_mutex;
-		tmp->mutex->dead = philo->mutex->dead;
 	}
 	tmp->next = philo;
 	return (1);
@@ -90,14 +97,17 @@ int	init_philos(t_philo *philo)
 	philo->mutex = malloc(sizeof(t_mutex));
 	if (!(philo->mutex))
 		return (0);
-	pthread_mutex_init(&philo->mutex->dead, NULL);
-	pthread_mutex_init(&philo->mutex->meals, NULL);
+	pthread_mutex_init(&(philo->mutex->dead), NULL);
+	pthread_mutex_init(&(philo->mutex->meals), NULL);
 	philo->id = 1;
 	philo->meal_count = 0;
 	philo->last_meal = curr_time();
 	philo->fork = 0;
 	philo->dead = 0;
-	philo->full = 0;
+	philo->full = malloc(sizeof(int));
+	if (!(philo->full))
+		return (0);
+	*(philo->full) = 0;
 	philo->curr_time = 0;
 	if (add_philos(philo) == 0)
 		return (0);
